@@ -1,0 +1,169 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-bg: #111111;
+  --color-surface: #1c1c1c;
+  --color-surface-2: #242424;
+  --color-surface-3: #161616;
+  --color-sidebar: #181818;
+  /* Alternating landing-section backdrop: deliberately much lighter than
+     --color-bg (not a subtle 1-2 step shift) so consecutive sections read
+     as clearly separate panels rather than blending into one long page. */
+  --color-section-alt: #201a15;
+
+  /* Rich Brown */
+  --color-primary: #6f4e37;
+  --color-primary-hover: #7f5b41;
+  --color-primary-soft: rgba(111, 78, 55, 0.24);
+  /* Walnut Brown */
+  --color-secondary: #8b5e3c;
+  --color-secondary-hover: #9c6b46;
+  --color-secondary-soft: rgba(139, 94, 60, 0.24);
+  /* Lighter walnut step for icon/text foreground use on soft-tinted chips —
+     the base --color-secondary reads fine as a solid fill but is a touch
+     dark for small text/icons sitting on a near-black tinted background. */
+  --color-secondary-fg: #c9a878;
+  /* Sand Brown */
+  --color-accent: #a67c52;
+  --color-accent-hover: #b58e68;
+  --color-accent-soft: rgba(166, 124, 82, 0.2);
+
+  --color-success: #2e7d32;
+  --color-success-soft: rgba(46, 125, 50, 0.18);
+  --color-warning: #b7791f;
+  --color-warning-soft: rgba(183, 121, 31, 0.18);
+  --color-danger: #b91c1c;
+  --color-danger-soft: rgba(185, 28, 28, 0.18);
+
+  --color-text: #f5f5f5;
+  --color-text-secondary: #bdbdbd;
+  --color-text-muted: #8a8a8a;
+  --color-border: #333333;
+  --color-border-strong: #454545;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px -6px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 24px 60px -12px rgba(0, 0, 0, 0.65);
+  --shadow-glow-primary: 0 0 0 1px rgba(111, 78, 55, 0.5), 0 8px 26px -6px rgba(111, 78, 55, 0.6);
+  --shadow-glow-secondary: 0 0 0 1px rgba(139, 94, 60, 0.5), 0 8px 26px -6px rgba(139, 94, 60, 0.6);
+  --shadow-glow-accent: 0 0 0 1px rgba(166, 124, 82, 0.5), 0 8px 26px -6px rgba(166, 124, 82, 0.6);
+
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Fraunces', 'Inter', ui-serif, serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+  --animate-orb-drift: orb-drift 14s ease-in-out infinite;
+  --animate-scroll-dot: scroll-dot 1.8s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes orb-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(3%, -4%) scale(1.08); }
+}
+
+@keyframes scroll-dot {
+  0% { transform: translateY(0); opacity: 1; }
+  70% { opacity: 0.3; }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+
+@keyframes ripple {
+  from { transform: scale(0); opacity: 0.45; }
+  to { transform: scale(1); opacity: 0; }
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: white;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Solid industrial surfaces — no gradients. Depth comes from a flat tint,
+   a hairline border and a shadow, not a color blend. */
+@utility glass-card {
+  background: rgba(28, 28, 28, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+@utility glass-panel {
+  background: rgba(24, 24, 24, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border);
+}
+
+@utility btn-glow {
+  box-shadow: var(--shadow-glow-primary);
+  transition: filter 0.2s var(--ease-standard), transform 0.2s var(--ease-standard), box-shadow 0.2s var(--ease-standard);
+  &:hover {
+    filter: brightness(1.12);
+    transform: translateY(-1px);
+  }
+}
+
+@utility skeleton-shimmer {
+  background: linear-gradient(90deg, var(--color-surface-2) 25%, var(--color-surface-3) 37%, var(--color-surface-2) 63%);
+  background-size: 800px 100%;
+  animation: var(--animate-shimmer);
+}

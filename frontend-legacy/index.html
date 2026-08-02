@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Deimos Inventory · Product Inventory Management</title>
+<meta name="description" content="Deimos Tech Product Inventory Management System" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app-shell">
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-mark">D</div>
+        <div class="brand-text">
+          <span class="brand-name">Deimos</span>
+          <span class="brand-sub">Inventory</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav" id="sidebar-nav">
+        <a href="#/dashboard" data-route="dashboard" class="nav-item">
+          <span class="nav-icon" data-icon="grid"></span><span>Dashboard</span>
+        </a>
+        <a href="#/products" data-route="products" class="nav-item">
+          <span class="nav-icon" data-icon="box"></span><span>Products</span>
+        </a>
+        <a href="#/categories" data-route="categories" class="nav-item">
+          <span class="nav-icon" data-icon="tag"></span><span>Categories</span>
+        </a>
+        <a href="#/suppliers" data-route="suppliers" class="nav-item">
+          <span class="nav-icon" data-icon="truck"></span><span>Suppliers</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div id="user-chip" class="user-chip">
+          <div class="user-avatar">?</div>
+          <div class="user-meta">
+            <span class="user-name">Guest</span>
+            <span class="user-role">Not signed in</span>
+          </div>
+        </div>
+        <button id="auth-btn" class="btn btn-ghost btn-block">Sign in</button>
+      </div>
+    </aside>
+
+    <div class="main-col">
+      <header class="topbar">
+        <button id="mobile-nav-toggle" class="icon-btn mobile-only" aria-label="Toggle navigation">
+          <span data-icon="menu"></span>
+        </button>
+        <div class="topbar-title">
+          <h1 id="page-title">Dashboard</h1>
+          <p id="page-subtitle" class="muted">Overview of your inventory health</p>
+        </div>
+        <div class="topbar-actions">
+          <div class="connection-pill" id="connection-pill">
+            <span class="dot"></span> <span id="connection-text">Connecting…</span>
+          </div>
+        </div>
+      </header>
+      <main id="content" class="content" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root" class="toast-root" aria-live="polite"></div>
+  <div id="drawer-root"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

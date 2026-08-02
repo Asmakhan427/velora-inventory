@@ -1,0 +1,282 @@
+openapi: 3.0.3
+info:
+  title: Velora Inventory API
+  description: Product Inventory Management System — REST API for Products, Categories, Suppliers, and Stock Movements.
+  version: 1.0.0
+servers:
+  - url: http://localhost:4000/api
+tags:
+  - name: Auth
+  - name: Products
+  - name: Categories
+  - name: Suppliers
+  - name: Dashboard
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: { type: object }
+    Product:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        sku: { type: string }
+        description: { type: string, nullable: true }
+        unit_price: { type: number }
+        quantity_in_stock: { type: integer }
+        category_id: { type: integer }
+        supplier_id: { type: integer }
+        category_name: { type: string }
+        supplier_name: { type: string }
+        created_at: { type: string }
+        updated_at: { type: string }
+    Category:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        product_count: { type: integer }
+    Supplier:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        contact_email: { type: string }
+        phone: { type: string, nullable: true }
+        address: { type: string, nullable: true }
+        product_count: { type: integer }
+    StockMovement:
+      type: object
+      properties:
+        id: { type: integer }
+        product_id: { type: integer }
+        type: { type: string, enum: [IN, OUT] }
+        quantity: { type: integer }
+        reason: { type: string, nullable: true }
+        created_at: { type: string }
+        running_balance: { type: integer }
+    PaginationMeta:
+      type: object
+      properties:
+        page: { type: integer }
+        pageSize: { type: integer }
+        total: { type: integer }
+        totalPages: { type: integer }
+        hasNextPage: { type: boolean }
+        hasPrevPage: { type: boolean }
+
+paths:
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Authenticate and receive a JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200': { description: Login successful }
+        '401': { description: Invalid credentials, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+
+  /products:
+    get:
+      tags: [Products]
+      summary: List products with search, filters, sorting, and pagination
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: category
+          schema: { type: integer }
+        - in: query
+          name: supplier
+          schema: { type: integer }
+        - in: query
+          name: status
+          schema: { type: string, enum: [in_stock, low_stock, out_of_stock] }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, default: 10 }
+        - in: query
+          name: sortBy
+          schema: { type: string, enum: [name, sku, unit_price, quantity_in_stock, created_at] }
+        - in: query
+          name: sortDir
+          schema: { type: string, enum: [asc, desc] }
+      responses:
+        '200':
+          description: Paginated product list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Product' } }
+                  meta: { $ref: '#/components/schemas/PaginationMeta' }
+    post:
+      tags: [Products]
+      summary: Create a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, sku, unit_price, category_id, supplier_id]
+              properties:
+                name: { type: string }
+                sku: { type: string }
+                description: { type: string }
+                unit_price: { type: number }
+                quantity_in_stock: { type: integer }
+                category_id: { type: integer }
+                supplier_id: { type: integer }
+      responses:
+        '201': { description: Created }
+        '409': { description: Duplicate SKU }
+        '422': { description: Validation error }
+
+  /products/export/csv:
+    get:
+      tags: [Products]
+      summary: Export the (optionally filtered) product list as CSV
+      responses:
+        '200': { description: CSV file }
+
+  /products/{id}:
+    get:
+      tags: [Products]
+      summary: Get a single product
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses:
+        '200': { description: OK }
+        '404': { description: Not found }
+    put:
+      tags: [Products]
+      summary: Update a product
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses:
+        '200': { description: Updated }
+        '409': { description: Duplicate SKU }
+        '422': { description: Validation error }
+    delete:
+      tags: [Products]
+      summary: Delete a product (ADMIN only)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses:
+        '204': { description: Deleted }
+        '401': { description: Unauthenticated }
+        '403': { description: Forbidden — Staff role cannot delete }
+
+  /products/{id}/stock-movements:
+    get:
+      tags: [Products]
+      summary: List stock movement history with running balance
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Products]
+      summary: Record a stock movement (IN/OUT), atomically updates quantity
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [type, quantity]
+              properties:
+                type: { type: string, enum: [IN, OUT] }
+                quantity: { type: integer, minimum: 1 }
+                reason: { type: string }
+      responses:
+        '201': { description: Movement recorded }
+        '400': { description: OUT quantity exceeds current stock }
+        '422': { description: Validation error }
+
+  /categories:
+    get:
+      tags: [Categories]
+      summary: List categories (paginated, searchable)
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Categories]
+      summary: Create a category
+      responses:
+        '201': { description: Created }
+        '409': { description: Duplicate name }
+
+  /categories/{id}:
+    put:
+      tags: [Categories]
+      summary: Update a category
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: Updated } }
+    delete:
+      tags: [Categories]
+      summary: Delete a category (ADMIN only; blocked if products reference it)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses:
+        '204': { description: Deleted }
+        '409': { description: Category still has associated products }
+
+  /suppliers:
+    get:
+      tags: [Suppliers]
+      summary: List suppliers (paginated, searchable)
+      responses: { '200': { description: OK } }
+    post:
+      tags: [Suppliers]
+      summary: Create a supplier
+      responses:
+        '201': { description: Created }
+        '422': { description: Invalid contact_email }
+
+  /suppliers/{id}:
+    put:
+      tags: [Suppliers]
+      summary: Update a supplier
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses: { '200': { description: Updated } }
+    delete:
+      tags: [Suppliers]
+      summary: Delete a supplier (ADMIN only; blocked if products reference it)
+      security: [{ bearerAuth: [] }]
+      parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
+      responses:
+        '204': { description: Deleted }
+        '409': { description: Supplier still has associated products }
+
+  /dashboard/summary:
+    get:
+      tags: [Dashboard]
+      summary: Aggregate stats for the dashboard (totals, stock value, low/out-of-stock counts, category breakdown, recent movements)
+      responses: { '200': { description: OK } }
