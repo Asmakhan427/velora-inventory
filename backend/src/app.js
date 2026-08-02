@@ -14,7 +14,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 
 ensureSchema();
 
-const app = express();   // ← THIS LINE MUST EXIST
+const app = express(); 
 
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
